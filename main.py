@@ -14,12 +14,6 @@ app = FastAPI()
 db_url, db_name = ConfigParser("database.properties")
 user_repo = UserRepository(db_url, db_name)
 
-
-@app.get("/hello")
-def read_root():
-    return {"message": "¡Hola mundo!"}
-
-
 @app.post("/users/", response_model=UserCreate)
 async def create_user(user_data: UserCreate):
     user_dict = user_data.model_dump()
@@ -35,3 +29,5 @@ async def create_tasks(task_data: List[dict] = Body(...)):
 
         
     return {"message": "Tareas creadas con éxito"}
+
+
