@@ -51,6 +51,6 @@ Restart=always
 WantedBy=multi-user.target
 EOF
 
-nohup gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app -b 0.0.0.0:15556 &
+sudo systemctl daemon-reload && sudo systemctl enable fastapi && sudo systemctl start fastapi || show_error_and_exit "No se pudo habilitar y arrancar el servicio"
 
 echo "El script se ha ejecutado correctamente."
