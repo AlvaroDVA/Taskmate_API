@@ -14,7 +14,13 @@ app = FastAPI()
 db_url, db_name = ConfigParser("database.properties")
 user_repo = UserRepository(db_url, db_name)
 
-@app.post("/users/", response_model=UserCreate)
+
+@app.get("/hello")
+def read_root():
+    return {"message": "¡Hola mundo!"}
+
+
+@app.post("/users", response_model=UserCreate)
 async def create_user(user_data: UserCreate):
     user_dict = user_data.model_dump()
     saved_user = user_repo.save_user(user_dict)
