@@ -23,7 +23,7 @@ def read_root():
 @app.post("/users", response_model=UserCreate)
 async def create_user(user_data: UserCreate):
     user_dict = user_data.model_dump()
-    saved_user = user_repo.save_user(user_dict)
+    saved_user = user_repo.create_user(user_dict)
     return saved_user
 
 @app.post('/tasks')
