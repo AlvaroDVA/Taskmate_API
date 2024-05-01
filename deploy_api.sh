@@ -9,8 +9,8 @@ show_error_and_exit() {
 # Actualizar el sistema
 sudo apt update && sudo apt upgrade -y || show_error_and_exit "No se pudo actualizar el sistema"
 
-# Instalar python3-venv
-sudo apt install -y python3-venv || show_error_and_exit "No se pudo instalar python3-venv"
+# Instalar python3-venv y otras dependencias
+sudo apt install -y python3-venv python3-pip || show_error_and_exit "No se pudo instalar python3-venv y otras dependencias"
 
 # Directorio de destino
 API_DIR="/var/www/api"
@@ -29,7 +29,7 @@ python3 -m venv "$VENV_DIR" || show_error_and_exit "No se pudo crear el entorno 
 source "$VENV_DIR/bin/activate" || show_error_and_exit "No se pudo activar el entorno virtual"
 
 # Instalar las dependencias de Python
-pip install fastapi uvicorn gunicorn || show_error_and_exit "No se pudieron instalar las dependencias de Python"
+pip install fastapi pydantic configparser || show_error_and_exit "No se pudieron instalar las dependencias de Python"
 
 # Iniciar Gunicorn
 nohup gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app -b 0.0.0.0:15556 &
