@@ -1,4 +1,5 @@
 from typing import List
+from uuid import UUID
 
 from day import Day
 from page import Page
@@ -6,6 +7,7 @@ from page import Page
 
 class User() :
     def __init__(self, 
+                 idUser : UUID,
                  username : str,
                  password : str,
                  email : str,
@@ -13,6 +15,7 @@ class User() :
                  dayList : List[Day],
                  notebookPages : List[Page]
                  ):
+        self.idUser = idUser,
         self.username = username,
         self.password = password,
         self.email = email,
