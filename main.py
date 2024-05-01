@@ -20,10 +20,9 @@ def read_root():
     return {"message": "¡Hola mundo!"}
 
 
-@app.post("/users", response_model=UserCreate)
-async def create_user(user_data: UserCreate):
-    user_dict = user_data.model_dump()
-    saved_user = user_repo.create_user(user_dict)
+@app.post("/users")
+async def create_user(user_data: dict):
+    saved_user = user_repo.create_user(user_data)
     return saved_user
 
 @app.post('/tasks')
