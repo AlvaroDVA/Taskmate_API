@@ -31,9 +31,6 @@ source "$VENV_DIR/bin/activate" || show_error_and_exit "No se pudo activar el en
 # Instalar las dependencias de Python
 pip install fastapi pydantic configparser || show_error_and_exit "No se pudieron instalar las dependencias de Python"
 
-# Iniciar Gunicorn
-nohup gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app -b 0.0.0.0:15556 &
-
 # Crear un archivo de servicio para systemd
 sudo tee /etc/systemd/system/fastapi.service >/dev/null <<EOF || show_error_and_exit "No se pudo crear el archivo de servicio"
 [Unit]
@@ -51,6 +48,7 @@ Restart=always
 WantedBy=multi-user.target
 EOF
 
+# Recargar y habilitar el servicio
 sudo systemctl daemon-reload && sudo systemctl enable fastapi && sudo systemctl start fastapi || show_error_and_exit "No se pudo habilitar y arrancar el servicio"
 
 echo "El script se ha ejecutado correctamente."
