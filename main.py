@@ -1,4 +1,5 @@
 from configparser import ConfigParser
+import json
 from typing import List
 from fastapi import Body, FastAPI
 
@@ -7,10 +8,15 @@ from repositories.user_repository import UserRepository
 
 app = FastAPI()
 
-# db_url = "mongodb://taskmate:AnUb1s7302@taskmate.ddns.net:15555/"
-db_url = "mongodb://localhost:27017/"
-db_name = "taskmate"
-user_repo = UserRepository(db_url, db_name)
+def load_config(filename):
+    with open(filename, "r") as file:
+        config = json.load(file)
+    return config
+
+config = load_config("config.json")
+database_config = config["database"]
+
+user_repo = UserRepository(database_config)
 
 
 @app.get("/hello")

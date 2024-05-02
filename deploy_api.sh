@@ -6,30 +6,25 @@ show_error_and_exit() {
     exit 1
 }
 
-# Actualizar el sistema
-sudo apt update && sudo apt upgrade -y || show_error_and_exit "No se pudo actualizar el sistema"
-
-# Instalar python3-venv y otras dependencias
-sudo apt install -y python3-venv python3-pip || show_error_and_exit "No se pudo instalar python3-venv y otras dependencias"
-
 # Directorio de destino
 API_DIR="/var/www/api"
 
-# Eliminar el directorio existente si hay contenido
+# Verificar si el directorio existe
 if [ -d "$API_DIR" ]; then
-    sudo rm -rf "$API_DIR" || show_error_and_exit "No se pudo eliminar el directorio existente"
+    # Eliminar el contenido del directorio, excluyendo el directorio en sí
+    sudo find "$API_DIR" -mindepth 1 -delete || show_error_and_exit "No se pudo borrar el contenido existente"
+else
+    # Si el directorio no existe, crearlo
+    sudo mkdir -p "$API_DIR" || show_error_and_exit "No se pudo crear el directorio api"
 fi
 
-# Clonar el repositorio desde cero
+# Clonar el repositorio dentro de la carpeta api
 git clone https://github.com/AlvaroDVA/Taskmate_API.git "$API_DIR" || show_error_and_exit "No se pudo clonar el repositorio"
 
-# Crear y activar un entorno virtual
-VENV_DIR="$API_DIR/venv"
-python3 -m venv "$VENV_DIR" || show_error_and_exit "No se pudo crear el entorno virtual"
-source "$VENV_DIR/bin/activate" || show_error_and_exit "No se pudo activar el entorno virtual"
+# Instalar las dependencias de Python en el sistema
+sudo apt install -y python3-fastapi python3-uvicorn python3-gunicorn || show_error_and_exit "No se pudieron instalar las dependencias de Python"
 
-# Instalar las dependencias de Python
-pip install fastapi pydantic configparser || show_error_and_exit "No se pudieron instalar las dependencias de Python"
+sudo apt install python3-bson python3-pymongo || show_error_and_exit 
 
 # Crear un archivo de servicio para systemd
 sudo tee /etc/systemd/system/fastapi.service >/dev/null <<EOF || show_error_and_exit "No se pudo crear el archivo de servicio"
@@ -41,7 +36,7 @@ After=network.target
 User=taskmate
 Group=taskmate
 WorkingDirectory=$API_DIR
-ExecStart=$VENV_DIR/bin/gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app -b 0.0.0.0:15556
+ExecStart=/usr/bin/gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app -b 0.0.0.0:15556
 Restart=always
 
 [Install]
@@ -49,6 +44,7 @@ WantedBy=multi-user.target
 EOF
 
 # Recargar y habilitar el servicio
-sudo systemctl daemon-reload && sudo systemctl enable fastapi && sudo systemctl start fastapi || show_error_and_exit "No se pudo habilitar y arrancar el servicio"
+sudo systemctl daemon-reload && sudo systemctl enable fastapi && (sleep 5 && sudo systemctl start fastapi) || show_error_and_exit "No se pudo habilitar y arrancar el servicio"
 
 echo "El script se ha ejecutado correctamente."
+
