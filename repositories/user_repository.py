@@ -44,7 +44,10 @@ class UserRepository:
     def update_user(self, user_id: str, update_data: dict, current_user: str) -> dict:
 
         user_data = self.get_user_by_id(user_id, current_user)
-        if not user_data or user_data["error"] is not None:
+        if not user_data or user_data.get("error"):
+            return {"error": "1050"}
+
+        if 'username' not in user_data or user_data.get('username') != current_user:
             return {"error": "1050"}
          
         if user_data["username"] != current_user:
