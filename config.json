@@ -1,6 +1,6 @@
 {
     "database": {
-        "db_url": "mongodb://taskmate:taskmate@taskmate.ddns.net:15555/",
+        "db_url": "mongodb://taskmate:taskmate@localhost:27017/",
         "username": "taskmate",
         "password": "taskmate",
         "db_name": "taskmate"
