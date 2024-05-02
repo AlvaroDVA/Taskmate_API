@@ -28,8 +28,11 @@ class UserRepository:
         
         return str(user_id)
 
-    def get_user_by_id(self, user_id: str) -> dict:
+    def get_user_by_id(self, user_id: str, current_user : str) -> dict:
         user_data = self.collection.find_one({'_id': user_id})
+
+        if user_data['username'] != current_user:
+            return {"error": "1051"}
         if user_data:
             # Convertir el resultado en un diccionario
             user_data_dict = dict(user_data)
@@ -38,11 +41,14 @@ class UserRepository:
             return {"error": "1050"}
 
 
-    def update_user(self, user_id: str, update_data: dict) -> dict:
+    def update_user(self, user_id: str, update_data: dict, current_user: str) -> dict:
 
         user_data = self.get_user_by_id(user_id)
         if not user_data:
-            return {"error": "1050"} 
+            return {"error": "1050"}
+         
+        if user_data['username'] != current_user:
+            return {"error": "1051"}
         
         if "username" in update_data or "email" in update_data:
             return {"error": "1053"} 
@@ -56,12 +62,19 @@ class UserRepository:
             return {"error": "1051"} 
 
 
-    def delete_user(self, user_id: UUID) -> dict:
+    def delete_user(self, user_id: str, current_user: str) -> dict:
+
+        user_data = self.collection.find_one({'_id': user_id})
+        if not user_data:
+            return {"error": "1050"}
+        if user_data['username'] != current_user:
+            return {"error": "1050"}
+
         result = self.collection.delete_one({'_id': user_id})
         if result.deleted_count > 0:
-            return {"worked" : "true"}
+            return {"worked": True}
         else:
-            return {"error" : "1052"}
+            return {"error": "1052"}
     
     def verify_user_credentials(self, username: str, password: str) -> bool:
         user_data = self.collection.find_one({"username": username, "password": password})
