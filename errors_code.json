@@ -1,0 +1,16 @@
+{
+    "usersErrors": {
+        "1001": "UserID already exists",
+        "1002": "User Email already exists",
+        "1003": "User Name already exists",
+        "1020": "Invalid Credentials",
+        "1021": "Email or User not send",
+        "1022": "Password not send",
+        "1023": "Id not send",
+        "1030": "Incorrect information in Json Body",
+        "1050": "User not found",
+        "1051": "User not changed",
+        "1052": "User not deleted",
+        "1053": "User Email, Name and Id can't be changed"
+    }
+}

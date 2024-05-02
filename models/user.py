@@ -1,13 +1,14 @@
 from typing import List
-from uuid import UUID
+
+from pydantic import BaseModel
 
 from day import Day
 from page import Page
 
 
-class User() :
+class User(BaseModel) :
     def __init__(self, 
-                 idUser : UUID,
+                 idUser : str,
                  username : str,
                  password : str,
                  email : str,

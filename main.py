@@ -1,7 +1,8 @@
-from configparser import ConfigParser
+from http.client import HTTPException
 import json
 from typing import List
-from fastapi import Body, FastAPI
+from fastapi import Body, FastAPI, Request
+from fastapi.params import Header
 
 from models.element_task import create_element_task_from_json
 from repositories.user_repository import UserRepository
@@ -26,17 +27,74 @@ def read_root():
 
 @app.post("/users")
 async def create_user(user_data: dict):
+    required_fields = ["idUser", "username", "password", "email", "avatar_uri"]
+    for field in required_fields:
+        if field not in user_data:
+            return {"error" : "1030"}
+    
     saved_user = user_repo.create_user(user_data)
     return saved_user
 
-@app.post('/tasks')
-async def create_tasks(task_data: List[dict] = Body(...)):
-    tasks = []
-    for task_dict in task_data:
-        task = create_element_task_from_json(task_dict)
-        tasks.append(task)
+@app.get("/users")
+async def get_user_by_id(request: Request):
+    user_data = await request.json()
+    if user_data is None or "idUser" not in user_data:
+        return {"error": "1023"}
 
+    user_id = user_data["idUser"]
+    
+    user = request.headers.get("user")
+    password = request.headers.get("password")
+    
+    if not user_repo.verify_user_credentials(user, password):
+        return {"error": "1020"}
+    else:
+        return user_repo.get_user_by_id(user_id)
+
+@app.put("/users")
+async def update_user(request: Request):
+    user_data = await request.json()
+    
+    user = request.headers.get("user")
+    password = request.headers.get("password")
+
+    if not user_repo.verify_user_credentials(user, password):
+        return {"error" : "1020"}
+    
+    user_id = user_data.pop("idUser", None)
+
+    allowed_fields = {"username", "password", "email", "avatar_uri"}
+    for key in user_data.keys():
+        if key not in allowed_fields:
+            return {"error" : "1030"}
         
-    return {"message": "Tareas creadas con éxito"}
+    if user_id is None:
+        return {"error": "1023"}
 
+    return user_repo.update_user(user_id, user_data)
 
+@app.delete("/users")
+async def delete_user(request: Request):
+    user_data = await request.json()
+    if user_data is None or "idUser" not in user_data:
+        return {"error": "1023"}
+
+    user_id = user_data["idUser"]
+    user = request.headers.get("user")
+    password = request.headers.get("password")
+    if not user_repo.verify_user_credentials(user, password):
+        return {"error" : "1020"}
+    else:
+        return user_repo.delete_user(user_id)
+
+@app.post("/login")
+async def login_user(request: Request):
+    username = request.headers.get("user")
+    password = request.headers.get("password")
+    email = request.headers.get("email")
+    if username is None and email is None:
+        return {"error" : "1021"}
+    if password is None:
+        return {"error" : "1022"}
+    
+    return user_repo.login_user(username=username, password=password, email=email)
