@@ -71,7 +71,7 @@ async def update_user(request: Request):
     if user_id is None:
         return {"error": "1023"}
 
-    return user_repo.update_user(user_id, user_data)
+    return user_repo.update_user(user_id, user_data,user)
 
 @app.delete("/users")
 async def delete_user(request: Request):
