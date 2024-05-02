@@ -3,7 +3,8 @@ from uuid import UUID
 from abc import ABC, abstractmethod
 from fastapi import File
 
-from sublist import SubList
+from models.sublist import SubList
+
 
 class ElementTask (ABC):
     def __init__(self,

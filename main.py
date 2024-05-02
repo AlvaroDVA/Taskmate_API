@@ -1,17 +1,15 @@
 from configparser import ConfigParser
-from datetime import date
 from typing import List
-from uuid import UUID
 from fastapi import Body, FastAPI
-from pydantic import BaseModel
 
-from models.day import Day, UserCreate
 from models.element_task import create_element_task_from_json
 from repositories.user_repository import UserRepository
 
 app = FastAPI()
 
-db_url, db_name = ConfigParser("database.properties")
+# db_url = "mongodb://taskmate:AnUb1s7302@taskmate.ddns.net:15555/"
+db_url = "mongodb://localhost:27017/"
+db_name = "taskmate"
 user_repo = UserRepository(db_url, db_name)
 
 

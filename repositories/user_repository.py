@@ -29,6 +29,6 @@ class UserRepository:
         return result.deleted_count > 0
     
     def verify_user_credentials(self, username: str, password: str) -> bool:
-        collection = self.db["users"]  # Suponiendo que la colección de usuarios se llama "users"
+        collection = self.db["users"]  
         user_data = collection.find_one({"username": username, "password": password})
         return user_data is not None
