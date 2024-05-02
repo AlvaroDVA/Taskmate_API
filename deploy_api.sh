@@ -44,7 +44,7 @@ WantedBy=multi-user.target
 EOF
 
 # Recargar y habilitar el servicio
-sudo systemctl daemon-reload && sudo systemctl enable fastapi && (sleep 5 && sudo systemctl resstart fastapi) || show_error_and_exit "No se pudo habilitar y arrancar el servicio"
+sudo systemctl daemon-reload && sudo systemctl enable fastapi && (sleep 5 && sudo systemctl restart fastapi) || show_error_and_exit "No se pudo habilitar y arrancar el servicio"
 
 echo "El script se ha ejecutado correctamente."
 
