@@ -58,7 +58,7 @@ async def get_user_by_id(request: Request):
 async def update_user(request: Request):
     user_data = await request.json()
     
-    user = request.headers.get("user")
+    user = request.headers.get("username")
     password = request.headers.get("password")
 
     if user is None or password is None:
@@ -86,7 +86,7 @@ async def delete_user(request: Request):
         return {"error": "1023"}
 
     user_id = user_data["idUser"]
-    user = request.headers.get("user")
+    user = request.headers.get("username")
     password = request.headers.get("password")
     if not user_repo.verify_user_credentials(user, password):
         return {"error" : "1020"}
@@ -95,7 +95,7 @@ async def delete_user(request: Request):
 
 @app.post("/login")
 async def login_user(request: Request):
-    username = request.headers.get("user")
+    username = request.headers.get("username")
     password = request.headers.get("password")
     email = request.headers.get("email")
     if username is None and email is None:
