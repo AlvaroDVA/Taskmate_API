@@ -9,16 +9,13 @@ class UserRepository:
         self.db_name = config["db_name"]
         self.username = config["username"]
         self.password = config["password"]
-        self.client = None
-        self.db = None
-        self.connect_to_database()
+        self.client = MongoClient(self.db_url)
+        self.db = self.client[self.db_name]
 
     def connect_to_database(self):
         # Aquí realizas la conexión a la base de datos utilizando los detalles proporcionados en la configuración
         # Aquí hay un ejemplo de cómo podrías conectar a MongoDB
         from pymongo import MongoClient
-        self.client = MongoClient(self.db_url)
-        self.db = self.client[self.db_name]
 
     def create_user(self, user_data: dict) -> str:
         collection = self.db[str(user_data['idUser'])]  
