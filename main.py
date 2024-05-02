@@ -61,6 +61,9 @@ async def update_user(request: Request):
     user = request.headers.get("user")
     password = request.headers.get("password")
 
+    if user is None or password is None:
+        return {"error": "1030"}
+
     if not user_repo.verify_user_credentials(user, password):
         return {"error" : "1020"}
     
