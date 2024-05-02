@@ -43,7 +43,7 @@ class UserRepository:
 
     def update_user(self, user_id: str, update_data: dict, current_user: str) -> dict:
 
-        user_data = self.get_user_by_id(user_id)
+        user_data = self.get_user_by_id(user_id, current_user)
         if not user_data:
             return {"error": "1050"}
          
