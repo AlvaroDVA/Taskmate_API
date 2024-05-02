@@ -1,0 +1,8 @@
+{
+    "database": {
+        "db_url": "mongodb://taskmate:taskmate@taskmate.ddns.net:15555/",
+        "username": "taskmate",
+        "password": "taskmate",
+        "db_name": "taskmate"
+    }
+}
