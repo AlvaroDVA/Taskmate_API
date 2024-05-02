@@ -49,7 +49,7 @@ async def get_user_by_id(request: Request):
     if not user_repo.verify_user_credentials(user, password):
         return {"error": "1020"}
     else:
-        return user_repo.get_user_by_id(user_id)
+        return user_repo.get_user_by_id(user_id, user)
 
 @app.put("/users")
 async def update_user(request: Request):
@@ -85,7 +85,7 @@ async def delete_user(request: Request):
     if not user_repo.verify_user_credentials(user, password):
         return {"error" : "1020"}
     else:
-        return user_repo.delete_user(user_id)
+        return user_repo.delete_user(user_id, user)
 
 @app.post("/login")
 async def login_user(request: Request):
