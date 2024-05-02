@@ -48,7 +48,7 @@ class UserRepository:
             return {"error": "1050"}
          
         if user_data['username'] != current_user:
-            return {"error": "1051"}
+            return {"error": "1050"}
         
         if "username" in update_data or "email" in update_data:
             return {"error": "1053"} 
