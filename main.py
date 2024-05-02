@@ -43,8 +43,11 @@ async def get_user_by_id(request: Request):
 
     user_id = user_data["idUser"]
     
-    user = request.headers.get("user")
+    user = request.headers.get("username")
     password = request.headers.get("password")
+
+    if user is None or password is None:
+        return {"error": "1030"}
     
     if not user_repo.verify_user_credentials(user, password):
         return {"error": "1020"}
@@ -57,6 +60,9 @@ async def update_user(request: Request):
     
     user = request.headers.get("user")
     password = request.headers.get("password")
+
+    if user is None or password is None:
+        return {"error": "1030"}
 
     if not user_repo.verify_user_credentials(user, password):
         return {"error" : "1020"}
