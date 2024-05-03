@@ -11,6 +11,10 @@
         "1050": "User not found",
         "1051": "User not changed",
         "1052": "User not deleted",
-        "1053": "User Email, Name and Id can't be changed"
+        "1053": "User Email, Name and Id can't be changed",
+        "1060": "This task already exists",
+        "1061": "Missing Json fields",
+        "1062": "Task has not changed",
+        "1063": "Task has not deleted"
     }
 }
