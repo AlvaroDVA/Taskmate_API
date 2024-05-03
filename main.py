@@ -123,8 +123,6 @@ async def create_task(request: Request):
     
     return task_repo.create_task(user_id, date, tasks)
         
-        
-
 @app.get("/tasks")
 async def get_tasks_by_date(request: Request):
     task_data = await request.json()
@@ -145,42 +143,3 @@ async def get_tasks_by_date(request: Request):
         return {"tasks": tasks}
     else:
         return {"tasks" : [] }
-
-@app.put("/tasks")
-async def update_tasks(request: Request):
-    task_data = await request.json()
-    if task_data is None or "idUser" not in task_data or "date" not in task_data or "tasks" not in task_data:
-        return {"error" : "1061"}
-    
-    user = request.headers.get("username")
-    password = request.headers.get("password")
-    if not user_repo.verify_user_credentials(user, password):
-        return {"error" : "1020"}
-    
-    user_id = task_data["idUser"]
-    date = task_data["date"]
-    tasks = task_data["tasks"]
-    
-    existing_tasks = task_repo.get_tasks_by_date(user_id, date)
-    if existing_tasks:
-        return task_repo.update_tasks(user_id, date, tasks)
-    else:
-        return {"tasks" : []}
-
-@app.delete("/tasks")
-async def delete_tasks(request: Request):
-    task_data = await request.json()
-    if task_data is None or "idUser" not in task_data or "date" not in task_data:
-        return {"error" : "1061"}
-    
-    user = request.headers.get("username")
-    password = request.headers.get("password")
-    if not user_repo.verify_user_credentials(user, password):
-        return {"error" : "1020"}
-    
-    user_id = task_data["idUser"]
-    date = task_data["date"]
-    
-    existing_tasks = task_repo.get_tasks_by_date(user_id, date)
-    if existing_tasks:
-        return task_repo.delete_tasks(user_id, date)

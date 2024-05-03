@@ -14,15 +14,13 @@ class TaskRepository () :
     def create_task(self, user_id: str, date: str, task_data: dict) -> dict:
         collection = self.db[user_id]
         
-        # Busca el documento existente con la fecha proporcionada
+        
         existing_document = collection.find_one({"date": date})
         
         if existing_document:
-            # Si el documento existe, actualiza la lista de tareas con la proporcionada en el JSON
             collection.update_one({"date": date}, {"$set": {"tasks": task_data}})
         else:
-            # Si el documento no existe, crea uno nuevo con la fecha y la lista de tareas proporcionadas
-            document = {"date": date, "tasks": task_data}
+            document = {"documentType" : "day","date": date, "tasks": task_data}
             collection.insert_one(document)
         
         return {"worked": True}
