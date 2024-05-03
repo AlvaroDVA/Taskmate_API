@@ -100,3 +100,18 @@ class UserRepository:
             
         else:
             return {"error": 1020}
+
+    
+    def verify_user_connected(self,username, provided_id):
+        user = self.collection.find_one({"username": username})
+
+        if user is None:
+            return False
+        
+        user_id = user.get("_id") 
+
+        if user_id == provided_id:
+            return True
+        else:
+            return False
+    
