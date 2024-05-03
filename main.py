@@ -140,6 +140,9 @@ async def get_tasks_by_date(request: Request):
     
     user_id = task_data["idUser"]
     date = task_data["date"]
+
+    if not user_repo.verify_user_connected(user, user_id):
+        return {"error" : "1020"}
     
     tasks = task_repo.get_tasks_by_date(user_id, date)
     if tasks:
