@@ -120,6 +120,9 @@ async def create_task(request: Request):
     user_id = task_data["idUser"]
     date = task_data["date"]
     tasks = task_data["tasks"]
+
+    if not user_repo.verify_user_connected(user, user_id):
+        return {"error" : "1020"}
     
     return task_repo.create_task(user_id, date, tasks)
         
