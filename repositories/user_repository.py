@@ -80,12 +80,14 @@ class UserRepository:
             return {"error": "1052"}
     
     def verify_user_credentials(self, username: str, password: str) -> bool:
-        user_data = self.collection.find_one({"username": username, "password": password})
+        username_lower = username.lower()
+        user_data = self.collection.find_one({"username": {"$regex": f'^{username_lower}$', "$options": "i"}, "password": password})
         return user_data is not None
     
     def login_user(self, username: str = None, password: str = None, email: str = None) -> bool:
         if username is not None and password is not None:
-            user_data = self.collection.find_one({"username": username, "password": password})
+            username_lower = username.lower()
+            user_data = self.collection.find_one({"username": {"$regex": f'^{username_lower}$', "$options": "i"}, "password": password})
             if user_data:
                 return user_data
             else:
