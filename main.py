@@ -94,7 +94,7 @@ async def delete_user(request: Request):
     else:
         return user_repo.delete_user(user_id, user)
 
-@app.post("/login")
+@app.get("/login")
 async def login_user(request: Request):
     username = request.headers.get("username")
     password = request.headers.get("password")
