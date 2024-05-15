@@ -28,7 +28,7 @@ def read_root():
 
 @app.post("/users")
 async def create_user(user_data: dict):
-    required_fields = ["idUser", "username", "password", "email", "avatar_uri"]
+    required_fields = ["idUser", "username", "password", "email", "avatar"]
     for field in required_fields:
         if field not in user_data:
             return {"error" : "1030"}
@@ -70,7 +70,7 @@ async def update_user(request: Request):
     
     user_id = user_data.pop("idUser", None)
 
-    allowed_fields = {"username", "password", "email", "avatar_uri"}
+    allowed_fields = {"username", "password", "email", "avatar"}
     for key in user_data.keys():
         if key not in allowed_fields:
             return {"error" : "1030"}
