@@ -13,11 +13,12 @@ class UserRepository:
         self.collection = self.db["Users"]
 
     def create_user(self, user_data: dict) -> str:
+        username_lower = user_data['username'].lower()
+        if self.collection.find_one({"username": {"$regex": f'^{username_lower}$', "$options": "i"}}):
+            return {"error" : "1003"}
+            
         if self.db["Users"].find_one({"email": user_data['email']}):
             return {"error" : "1002"}
-        
-        if self.db["Users"].find_one({"username": user_data['username']}):
-            return {"error" : "1003"}
         
         if self.db["Users"].find_one({"_id": user_data['idUser']}):
             return {"error" : "1001"}
@@ -26,7 +27,8 @@ class UserRepository:
         
         user_id = self.collection.insert_one(user_data).inserted_id
         
-        return str(user_id)
+        return self.collection.find_one({'_id': user_id})
+        
 
     def get_user_by_id(self, user_id: str, current_user : str) -> dict:
         user_data = self.collection.find_one({'_id': user_id})
