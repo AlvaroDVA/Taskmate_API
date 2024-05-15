@@ -128,9 +128,7 @@ async def create_task(request: Request):
         
 @app.get("/tasks")
 async def get_tasks_by_date(request: Request):
-    task_data = await request.json()
-    if task_data is None or "idUser" not in task_data or "date" not in task_data:
-        return {"error" : "1061"}
+    
     
     user = request.headers.get("username")
     password = request.headers.get("password")
@@ -138,8 +136,11 @@ async def get_tasks_by_date(request: Request):
     if not user_repo.verify_user_credentials(user, password):
         return {"error" : "1020"}
     
-    user_id = task_data["idUser"]
-    date = task_data["date"]
+    user_id = request.headers.get("idUser")
+    date = request.headers.get("date")
+
+    if user_id is None or date is None:
+        return {"error" : "1061"}
 
     if not user_repo.verify_user_connected(user, user_id):
         return {"error" : "1020"}
