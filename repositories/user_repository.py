@@ -24,6 +24,8 @@ class UserRepository:
             return {"error" : "1001"}
         
         user_data["_id"] = user_data.pop("idUser")
+
+        user_data["pages"] = []
         
         user_id = self.collection.insert_one(user_data).inserted_id
         
@@ -118,4 +120,23 @@ class UserRepository:
             return True
         else:
             return False
+        
+    def get_notebook(self, username: str) -> list: 
+        username_lower = username.lower()
+        user = self.collection.find_one({"username": {"$regex": f'^{username_lower}$', "$options": "i"}})
+        
+        if user:
+            return user.get('pages', [])
+        else:
+            return {"error": "User not found"}
+    
+    def save_notebook(self, username : str, pages : dict):
+        username_lower = username.lower()
+        user = self.collection.find_one({"username": {"$regex": f'^{username_lower}$', "$options": "i"}})
+    
+        if user:
+            self.collection.update_one({"_id": user["_id"]}, {"$set": {"pages": pages}})
+            return {"pages" : pages}
+        else:
+            return {"error": "User not found"}
     

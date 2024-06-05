@@ -26,13 +26,6 @@ class TaskRepository () :
         return {"worked": True}
 
 
-
-
-
-
-
-
-
     def get_tasks_by_date(self, user_id: str, date: str) -> list:
         collection = self.db[user_id]
         
