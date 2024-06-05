@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import json
 from typing import List
 from fastapi import Body, FastAPI, Request
@@ -5,9 +7,10 @@ from fastapi.params import Header
 
 from models.element_task import create_element_task_from_json
 from repositories.user_repository import UserRepository
+
 from repositories.task_repository import TaskRepository
 
-app = FastAPI()
+app = FastAPI(encoding="utf-8", debug=True)
 
 def load_config(filename):
     with open(filename, "r") as file:
@@ -19,12 +22,6 @@ database_config = config["database"]
 
 user_repo = UserRepository(database_config)
 task_repo = TaskRepository(database_config)
-
-
-@app.get("/hello")
-def read_root():
-    return {"message": "¡Hola mundo!"}
-
 
 @app.post("/users")
 async def create_user(user_data: dict):
@@ -97,6 +94,7 @@ async def delete_user(request: Request):
 @app.get("/login")
 async def login_user(request: Request):
     username = request.headers.get("username")
+    print(username)
     password = request.headers.get("password")
     email = request.headers.get("email")
     if username is None and email is None:
@@ -129,7 +127,6 @@ async def create_task(request: Request):
 @app.get("/tasks")
 async def get_tasks_by_date(request: Request):
     
-    
     user = request.headers.get("username")
     password = request.headers.get("password")
     
@@ -150,3 +147,38 @@ async def get_tasks_by_date(request: Request):
         return {"tasks": tasks}
     else:
         return {"tasks" : [] }
+
+@app.get("/notebook")
+async def get_pages(request: Request):
+    
+    
+    user = request.headers.get("username")
+    password = request.headers.get("password")
+    
+    if not user_repo.verify_user_credentials(user, password):
+        return {"error" : "1020"}
+
+    
+    notebook = user_repo.get_notebook(user)
+    if notebook:
+        return {"pages": notebook}
+    else:
+        return {"pages" : [] }
+    
+@app.post("/notebook")
+async def save_pages(request: Request):
+    
+    user = request.headers.get("username")
+    password = request.headers.get("password")
+    
+    if not user_repo.verify_user_credentials(user, password):
+        return {"error" : "1020"}
+
+    json = await request.json()
+    pages = json["pages"]
+    
+    notebook = user_repo.save_notebook(user, pages)
+    if notebook:
+        return {"pages": notebook}
+    else:
+        return {"pages" : [] }
