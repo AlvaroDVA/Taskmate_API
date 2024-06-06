@@ -2,7 +2,7 @@
 
 import json
 from typing import List
-from fastapi import Body, FastAPI, Request
+from fastapi import Body, FastAPI, Request, Response
 from fastapi.params import Header
 
 from models.element_task import create_element_task_from_json
@@ -23,6 +23,7 @@ database_config = config["database"]
 user_repo = UserRepository(database_config)
 task_repo = TaskRepository(database_config)
 
+# Endpoint para crear usuarios
 @app.post("/users")
 async def create_user(user_data: dict):
     required_fields = ["idUser", "username", "password", "email", "avatar"]
@@ -33,6 +34,7 @@ async def create_user(user_data: dict):
     saved_user = user_repo.create_user(user_data)
     return saved_user
 
+# Endpoint para obtener usuarios por ID
 @app.get("/users")
 async def get_user_by_id(request: Request):
     user_data = await request.json()
@@ -52,6 +54,7 @@ async def get_user_by_id(request: Request):
     else:
         return user_repo.get_user_by_id(user_id, user)
 
+# Endpoint para actualizar usuarios
 @app.put("/users")
 async def update_user(request: Request):
     user_data = await request.json()
@@ -77,6 +80,7 @@ async def update_user(request: Request):
 
     return user_repo.update_user(user_id, user_data,user)
 
+# Endpoint para eliminar usuarios
 @app.delete("/users")
 async def delete_user(request: Request):
     user_data = await request.json()
@@ -91,6 +95,7 @@ async def delete_user(request: Request):
     else:
         return user_repo.delete_user(user_id, user)
 
+# Endpoint para iniciar sesión de usuario
 @app.get("/login")
 async def login_user(request: Request):
     username = request.headers.get("username")
@@ -104,6 +109,7 @@ async def login_user(request: Request):
     
     return user_repo.login_user(username=username, password=password, email=email)
 
+# Endpoint para crear tareas
 @app.post("/tasks")
 async def create_task(request: Request):
     task_data = await request.json()
@@ -123,10 +129,10 @@ async def create_task(request: Request):
         return {"error" : "1020"}
     
     return task_repo.create_task(user_id, date, tasks)
-        
+
+# Endpoint para obtener tareas por fecha
 @app.get("/tasks")
 async def get_tasks_by_date(request: Request):
-    
     user = request.headers.get("username")
     password = request.headers.get("password")
     
@@ -148,37 +154,39 @@ async def get_tasks_by_date(request: Request):
     else:
         return {"tasks" : [] }
 
+# Endpoint para obtener páginas del cuaderno
 @app.get("/notebook")
 async def get_pages(request: Request):
-    
-    
     user = request.headers.get("username")
     password = request.headers.get("password")
     
     if not user_repo.verify_user_credentials(user, password):
         return {"error" : "1020"}
 
-    
     notebook = user_repo.get_notebook(user)
     if notebook:
-        return {"pages": notebook}
+        response_body = json.dumps({"pages": notebook}, ensure_ascii=False)
+        response = Response(content=response_body, media_type="application/json; charset=UTF-8")
+        return response
     else:
-        return {"pages" : [] }
+        response_body = json.dumps({"pages": []}, ensure_ascii=False)
+        response = Response(content=response_body, media_type="application/json; charset=UTF-8")
+        return response
     
 @app.post("/notebook")
 async def save_pages(request: Request):
-    
     user = request.headers.get("username")
     password = request.headers.get("password")
     
     if not user_repo.verify_user_credentials(user, password):
-        return {"error" : "1020"}
+        return {"error": "1020"}
 
-    json = await request.json()
-    pages = json["pages"]
-    
+    json_data = await request.json()
+    pages = json_data.get("pages", {})  
+
     notebook = user_repo.save_notebook(user, pages)
+
     if notebook:
         return {"pages": notebook}
     else:
-        return {"pages" : [] }
+        return {"pages": []}
