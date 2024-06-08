@@ -7,7 +7,7 @@ class Page(BaseModel):
     text: str = Field(..., example="Page content")
 
 class NotebookPage(BaseModel):
-    pages: List[Page] = Field(..., example=[{"numPage": 1, "text": "Page content"}])
+    pages: List[Page] = Field(..., example=[{"pageNumber": 1, "text": "Page content"}])
 
 class User(BaseModel):
     idUser: str
