@@ -2,6 +2,8 @@ from typing import List
 from uuid import UUID
 from pymongo import MongoClient
 
+from models.models import Page
+
 class UserRepository:
     def __init__(self, config):
         self.db_url = config["db_url"]
@@ -88,7 +90,7 @@ class UserRepository:
         user_data = self.collection.find_one({"username": {"$regex": f'^{username_lower}$', "$options": "i"}, "password": password})
         return user_data is not None
     
-    def login_user(self, username: str = None, password: str = None, email: str = None) -> bool:
+    def login_user(self, username: str = None, password: str = None) -> bool:
         if username is not None and password is not None:
             username_lower = username.lower()
             user_data = self.collection.find_one({"username": {"$regex": f'^{username_lower}$', "$options": "i"}, "password": password})
@@ -96,13 +98,6 @@ class UserRepository:
                 return user_data
             else:
                 return {"error": 1020} 
-            
-        elif email is not None and password is not None:
-            user_data = self.collection.find_one({"email": email, "password": password})
-            if user_data:
-                return user_data
-            else:
-                return {"error": 1020}
             
         else:
             return {"error": 1020}
@@ -130,13 +125,13 @@ class UserRepository:
         else:
             return {"error": "User not found"}
     
-    def save_notebook(self, username : str, pages : dict):
+    def save_notebook(self, username: str, pages: dict):
         username_lower = username.lower()
         user = self.collection.find_one({"username": {"$regex": f'^{username_lower}$', "$options": "i"}})
-    
         if user:
-            self.collection.update_one({"_id": user["_id"]}, {"$set": {"pages": pages}})
-            return {"pages" : pages}
+            pages_list = pages.get('pages', [])
+            self.collection.update_one({"_id": user["_id"]}, {"$set": {"pages": pages_list}})
+            return {"pages": pages_list}
         else:
             return {"error": "User not found"}
     

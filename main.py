@@ -2,10 +2,10 @@
 
 import json
 from typing import List
-from fastapi import Body, FastAPI, Request, Response
+from fastapi import Body, FastAPI, HTTPException, Request, Response
 from fastapi.params import Header
 
-from models.element_task import create_element_task_from_json
+from models.models import DeleteUser, User
 from repositories.user_repository import UserRepository
 
 from repositories.task_repository import TaskRepository
@@ -34,38 +34,31 @@ async def create_user(user_data: dict):
     saved_user = user_repo.create_user(user_data)
     return saved_user
 
-# Endpoint para obtener usuarios por ID
 @app.get("/users")
-async def get_user_by_id(request: Request):
-    user_data = await request.json()
-    if user_data is None or "idUser" not in user_data:
-        return {"error": "1023"}
+async def get_user_by_id(
+    request: Request,
+    user_id: str,
+    username: str = Header(None, description="Username of the user"),
+    password: str = Header(None, description="Password of the user")
+):
+    if username is None or password is None:
+        raise HTTPException(status_code=400, detail="Username and password are required")
 
-    user_id = user_data["idUser"]
-    
-    user = request.headers.get("username")
-    password = request.headers.get("password")
+    if not user_repo.verify_user_credentials(username, password):
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
-    if user is None or password is None:
-        return {"error": "1030"}
-    
-    if not user_repo.verify_user_credentials(user, password):
-        return {"error": "1020"}
-    else:
-        return user_repo.get_user_by_id(user_id, user)
+    return user_repo.get_user_by_id(user_id, username)
 
 # Endpoint para actualizar usuarios
 @app.put("/users")
-async def update_user(request: Request):
-    user_data = await request.json()
-    
-    user = request.headers.get("username")
-    password = request.headers.get("password")
+async def update_user(user_data: dict, 
+                      username: str = Header(None, description="Username of the user"), 
+                      password: str = Header(None, description="Password of the user")):
 
-    if user is None or password is None:
+    if username is None or password is None:
         return {"error": "1030"}
 
-    if not user_repo.verify_user_credentials(user, password):
+    if not user_repo.verify_user_credentials(username, password):
         return {"error" : "1020"}
     
     user_id = user_data.pop("idUser", None)
@@ -78,36 +71,37 @@ async def update_user(request: Request):
     if user_id is None:
         return {"error": "1023"}
 
-    return user_repo.update_user(user_id, user_data,user)
+    return user_repo.update_user(user_id, user_data, username)
 
 # Endpoint para eliminar usuarios
 @app.delete("/users")
-async def delete_user(request: Request):
-    user_data = await request.json()
-    if user_data is None or "idUser" not in user_data:
-        return {"error": "1061"}
+async def delete_user(
+    user_data: DeleteUser = Body(..., example = {
+        "id": "c1356b19-0dd9-49ee-81b5-7f7a78c4655e",
+    }
+    ),
+    username: str = Header(..., description="Username of the user"),
+    password: str = Header(..., description="Password of the user")):
 
-    user_id = user_data["idUser"]
-    user = request.headers.get("username")
-    password = request.headers.get("password")
-    if not user_repo.verify_user_credentials(user, password):
+    if username is None or password is None:
+        return {"error": "1030"}
+
+    if not user_repo.verify_user_credentials(username, password):
         return {"error" : "1020"}
     else:
-        return user_repo.delete_user(user_id, user)
+        return user_repo.delete_user(user_data.idUser, username)
 
-# Endpoint para iniciar sesión de usuario
 @app.get("/login")
-async def login_user(request: Request):
-    username = request.headers.get("username")
-    print(username)
-    password = request.headers.get("password")
-    email = request.headers.get("email")
-    if username is None and email is None:
-        return {"error" : "1021"}
+async def login_user(
+    username: str = Header(None, description="Username of the user"),
+    password: str = Header(None, description="Password of the user"),
+):
+    if username is None:
+        return {"error": "1021"}
     if password is None:
-        return {"error" : "1022"}
-    
-    return user_repo.login_user(username=username, password=password, email=email)
+        return {"error": "1022"}
+
+    return user_repo.login_user(username=username, password=password)
 
 # Endpoint para crear tareas
 @app.post("/tasks")
@@ -156,14 +150,14 @@ async def get_tasks_by_date(request: Request):
 
 # Endpoint para obtener páginas del cuaderno
 @app.get("/notebook")
-async def get_pages(request: Request):
-    user = request.headers.get("username")
-    password = request.headers.get("password")
+async def get_pages(
+    username: str = Header(..., example="user1"),
+    password: str = Header(..., example="password123")):
     
-    if not user_repo.verify_user_credentials(user, password):
+    if not user_repo.verify_user_credentials(username, password):
         return {"error" : "1020"}
 
-    notebook = user_repo.get_notebook(user)
+    notebook = user_repo.get_notebook(username)
     if notebook:
         response_body = json.dumps({"pages": notebook}, ensure_ascii=False)
         response = Response(content=response_body, media_type="application/json; charset=UTF-8")
@@ -174,19 +168,18 @@ async def get_pages(request: Request):
         return response
     
 @app.post("/notebook")
-async def save_pages(request: Request):
-    user = request.headers.get("username")
-    password = request.headers.get("password")
+async def save_pages(
+    pages = Body(..., example={"pages": [{
+        "pageNumber" : 1, "text" : "Esto es una pagina"
+    }, {
+        "pageNumber" : 2, "text" : "Esto es una pagina 2"
+    }]}),
+    username: str = Header(..., example="user1"),
+    password: str = Header(..., example="password123")):
     
-    if not user_repo.verify_user_credentials(user, password):
+    """Guarda páginas del cuaderno."""
+    if not user_repo.verify_user_credentials(username, password):
         return {"error": "1020"}
 
-    json_data = await request.json()
-    pages = json_data.get("pages", {})  
-
-    notebook = user_repo.save_notebook(user, pages)
-
-    if notebook:
-        return {"pages": notebook}
-    else:
-        return {"pages": []}
+    notebook = user_repo.save_notebook(username, pages)
+    return {"pages": notebook}
