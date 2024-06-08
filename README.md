@@ -56,10 +56,10 @@ API para mi Aplicación [Taskmate](https://github.com/AlvaroDVA/taskmate) . Esta
    - Iniciar la API
 
    ```bash
-   uvicorn main:app --host 0.0.0.0 --port 8091  
+   uvicorn main:app --host 0.0.0.0 --port port  
    ```
 
-   - Visita [http://localhost:8091/docs](http://localhost:8091/docs) para ver la documentación interactiva de la API.
+   - Visita http://localhost:{port}/docs para ver la documentación interactiva de la API.
 
    - Realiza solicitudes a la API utilizando herramientas como cURL, Postman, o integrándola en tu aplicación.
 
@@ -82,7 +82,7 @@ API para mi Aplicación [Taskmate](https://github.com/AlvaroDVA/taskmate) . Esta
 
 ### Consultar documentación de los endpoints
 
-Visita [http://localhost:8091/docs](http://localhost:8091/docs) para consultar toda la información sobre las llamadas.
+Visita http://localhost:{port}/docs  para consultar toda la información sobre las llamadas.
 
 #### Tener en cuenta :
 
